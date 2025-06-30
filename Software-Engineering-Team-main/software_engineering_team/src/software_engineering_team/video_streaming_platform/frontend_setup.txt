@@ -1,0 +1,162 @@
+Framework Chosen: React
+Reason: React was chosen for its component-based architecture, strong community support, and ability to handle dynamic user interfaces effectively. Its ecosystem is rich with libraries that could enhance our development process.
+
+Assumptions Made:
+1. The backend routes are defined as per the provided services and will be reachable at '/api/users', '/api/videos', '/api/notifications', etc.
+2. Each video has a unique ID and proper error handling is necessary.
+3. User actions for registration and login need to be straightforward with clear feedback.
+
+Steps to Run the UI Locally:
+1. Ensure Node.js and npm are installed.
+2. Navigate to the 'video_streaming_platform' directory.
+3. Create a new React application:
+   npx create-react-app frontend
+4. Go into the frontend directory:
+   cd frontend
+5. Install Axios for API calls:
+   npm install axios
+6. Create the directory structure for components:
+   mkdir src/components
+7. Replace the 'src/App.js' file with the provided React component code.
+8. Start the application:
+   npm start
+
+Frontend Code:
+1. App.js:
+import React from 'react';
+import Authentication from './components/Authentication';
+import VideoUpload from './components/VideoUpload';
+import VideoEditor from './components/VideoEditor';
+import Notifications from './components/Notifications';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>Video Streaming Platform</h1>
+      <Authentication />
+      <VideoUpload />
+      <VideoEditor />
+      <Notifications />
+    </div>
+  );
+}
+
+export default App;
+
+2. Authentication.jsx:
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const Authentication = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('/api/users/login', { username, password });
+      alert(`Successfully logged in: ${response.data.token}`);
+    } catch (error) {
+      alert('Error logging in. Check your credentials.');
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin}>
+      <h2>Login</h2>
+      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" required />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  );
+};
+
+export default Authentication;
+
+3. VideoUpload.jsx:
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const VideoUpload = () => {
+  const [videoId, setVideoId] = useState('');
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('/api/videos/upload', { id: videoId, title, content, user_id: 'user-1' });
+      alert('Video uploaded successfully!');
+    } catch (error) {
+      alert('Error uploading video.');
+    }
+  };
+
+  return (
+    <form onSubmit={handleUpload}>
+      <h2>Upload Video</h2>
+      <input type="number" value={videoId} onChange={(e) => setVideoId(e.target.value)} placeholder="Video ID" required />
+      <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" required />
+      <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Content" required></textarea>
+      <button type="submit">Upload</button>
+    </form>
+  );
+};
+
+export default VideoUpload;
+
+4. VideoEditor.jsx:
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const VideoEditor = () => {
+  const [videoId, setVideoId] = useState('');
+  const [method, setMethod] = useState('');
+
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`/api/videos/${videoId}/edit`, { method });
+      alert('Video edited successfully!');
+    } catch (error) {
+      alert('Error editing video.');
+    }
+  };
+
+  return (
+    <form onSubmit={handleEdit}>
+      <h2>Edit Video</h2>
+      <input type="number" value={videoId} onChange={(e) => setVideoId(e.target.value)} placeholder="Video ID" required />
+      <select value={method} onChange={(e) => setMethod(e.target.value)} required>
+        <option value="">Select Method</option>
+        <option value="trim">Trim</option>
+        <option value="add_filter">Add Filter</option>
+      </select>
+      <button type="submit">Edit</button>
+    </form>
+  );
+};
+
+export default VideoEditor;
+
+5. Notifications.jsx:
+import React, { useEffect } from 'react';
+import axios from 'axios';
+
+const Notifications = () => {
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.post('/api/notifications', { user_id: 'user-1', message: 'New video uploaded!' });
+        console.log(response.data);
+      } catch (error) {
+        console.error('Error fetching notifications.');
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  return <div>Check console for notifications.</div>;
+};
+
+export default Notifications;
